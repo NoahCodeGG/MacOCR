@@ -10,7 +10,7 @@ import CoreImage
 import Foundation
 import Vision
 
-var joiner = " "
+var joiner = "\n"
 
 func convertCIImageToCGImage(inputImage: CIImage) -> CGImage? {
     let context = CIContext(options: nil)
