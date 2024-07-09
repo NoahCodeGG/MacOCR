@@ -5,11 +5,10 @@
 //  Created by Marcus Schappi on 17/5/21, 11:36 am
 //
 
-import Foundation
-import CoreImage
 import Cocoa
+import CoreImage
+import Foundation
 import Vision
-
 
 var joiner = " "
 
@@ -21,37 +20,33 @@ func convertCIImageToCGImage(inputImage: CIImage) -> CGImage? {
     return nil
 }
 
-func recognizeTextHandler(request: VNRequest, error: Error?) {
+func recognizeTextHandler(request: VNRequest, error _: Error?) {
     guard let observations =
-            request.results as? [VNRecognizedTextObservation] else {
+        request.results as? [VNRecognizedTextObservation]
+    else {
         return
     }
     let recognizedStrings = observations.compactMap { observation in
         // Return the string of the top VNRecognizedText instance.
-        return observation.topCandidates(1).first?.string
+        observation.topCandidates(1).first?.string
     }
-    
+
     // Process the recognized strings.
     let joined = recognizedStrings.joined(separator: joiner)
     print(joined)
-    
-    let pasteboard = NSPasteboard.general
-    pasteboard.declareTypes([.string], owner: nil)
-    pasteboard.setString(joined, forType: .string)
-    
 }
 
-func detectText(fileName : URL, lang : String) -> [CIFeature]? {
-    if let ciImage = CIImage(contentsOf: fileName){
-        guard let img = convertCIImageToCGImage(inputImage: ciImage) else { return nil}
-      
+func detectText(fileName: URL, lang: String) -> [CIFeature]? {
+    if let ciImage = CIImage(contentsOf: fileName) {
+        guard let img = convertCIImageToCGImage(inputImage: ciImage) else { return nil }
+
         let requestHandler = VNImageRequestHandler(cgImage: img)
 
         let request = VNRecognizeTextRequest(completionHandler: recognizeTextHandler)
         request.recognitionLevel = .accurate
-        if (lang == "auto"){
-            request.recognitionLanguages = ["zh-Hans", "zh-Hant", "en-US", "ja-JP", "ko-KR", "fr-FR", "es-ES", "ru-RU", "de-DE", "it-IT", "tr-TR", "pt-PT", "vi-VN", "id-ID", "th-TH", "ms-MY", "ar-SA", "hi-IN" ]
-        }else{
+        if lang == "auto" {
+            request.recognitionLanguages = ["zh-Hans", "zh-Hant", "en-US", "ja-JP", "ko-KR", "fr-FR", "es-ES", "ru-RU", "de-DE", "it-IT", "tr-TR", "pt-PT", "vi-VN", "id-ID", "th-TH", "ms-MY", "ar-SA", "hi-IN"]
+        } else {
             request.recognitionLanguages = [lang]
         }
         request.usesLanguageCorrection = true
@@ -61,7 +56,7 @@ func detectText(fileName : URL, lang : String) -> [CIFeature]? {
         } catch {
             print("Unable to perform the requests: \(error).")
         }
-}
+    }
     return nil
 }
 
@@ -70,7 +65,7 @@ if CommandLine.argc < 2 {
 } else {
     let inputURL = URL(fileURLWithPath: CommandLine.arguments[1])
     let language = CommandLine.arguments[2]
-    if let features = detectText(fileName : inputURL, lang : language), !features.isEmpty{}
+    if let features = detectText(fileName: inputURL, lang: language), !features.isEmpty {}
 }
 
 exit(EXIT_SUCCESS)
